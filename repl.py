@@ -1,8 +1,9 @@
 import json
 import requests
 
-from ir import *
+from evaluate import *
 from fmt import *
+from ir import *
 
 TARGET = 'https://boundvariable.space/communicate'
 HEADERS = {
@@ -17,7 +18,7 @@ def send(x):
 
 def run_repl():
     resp = send(enc([Str("get index")]))
-    print(fmt(dec(resp)))
+    print(eval_lazy(parse_all(dec(resp)), Bindings())())
     while True:
         try:
             x = input('> ')
@@ -27,8 +28,17 @@ def run_repl():
         if len(x) == 0:
             break
         resp = send(enc(eval(x)))
+        print('== RAW ==')
         print(repr(resp))
-        print(fmt(dec(resp)))
+        tokens = dec(resp)
+        print('== TOKENS ==')
+        print(fmt(tokens))
+        prog = parse_all(tokens)
+        print('== RESULT ==')
+        try:
+            print(eval_lazy(prog, Bindings())())
+        except RecursionError:
+            print('<recursion limit>')
 
 if __name__ == '__main__':
     run_repl()
