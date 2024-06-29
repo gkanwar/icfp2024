@@ -19,7 +19,7 @@ def dec_token(s):
 
 def dec(s):
     """Decode (lex) input string into sequence of IR tokens"""
-    return [dec_token(tok) for tok in s.strip().split(' ')]
+    return [dec_token(tok) for tok in s.strip().split()]
 def enc(tokens):
     """Encode sequence of IR tokens into output string"""
     return ' '.join(tok.enc() for tok in tokens)
@@ -127,7 +127,9 @@ ALL_OPS.append(Unary)
 
 def s2i(s):
     tok = Str(s).enc()
-    return Int.dec('I' + tok[1:]).value
+    value = Int.dec('I' + tok[1:]).value
+    # print(f's2i {value}')
+    return value
 def i2s(x):
     tok = Int(Int.to_digits(x)).enc()
     return Str.dec('S' + tok[1:]).value
@@ -144,7 +146,16 @@ class US2I(Unary):
 class UI2S(Unary):
     BODY = '$'
     F = staticmethod(lambda x: i2s(x()))
-UN_OPS.extend([UNeg, UNot, US2I, UI2S])
+class UPrint(Unary):
+    BODY = 'P'
+    def __init__(self, prefix):
+        self.prefix = prefix
+    def F(self, x):
+        print(self.prefix, x())
+        return x()
+    def enc(self):
+        return ''
+UN_OPS.extend([UNeg, UNot, US2I, UI2S, UPrint])
 
 
 ### BINARY
@@ -178,13 +189,15 @@ def imod(x, y):
     assert isinstance(x, int) and isinstance(y, int)
     return x - idiv(x,y)*y
 def strcat(x, y):
-    assert isinstance(x, str) and isinstance(y, str)
+    assert isinstance(x, str) and isinstance(y, str), f'{x=} {y=}'
     return x+y
 def strtake(x, y):
-    assert isinstance(x, int) and isinstance(y, str)
+    assert isinstance(x, int) and isinstance(y, str), f'{x=} {y=}'
+    # print(f'strtake {y[:x]}')
     return y[:x]
 def strdrop(x, y):
-    assert isinstance(x, int) and isinstance(y, str)
+    assert isinstance(x, int) and isinstance(y, str), f'{x=} {y=}'
+    # print(f'strdrop {y[x:]}')
     return y[x:]
 
 class BPlus(Binary):

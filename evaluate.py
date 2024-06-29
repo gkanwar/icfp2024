@@ -1,6 +1,8 @@
 import copy
 from ir import *
 from typing import TypeAlias
+import sys
+sys.setrecursionlimit(100000)
 
 ZERO_ARG_OPS = [
     BoolT, BoolF, Int, Str, Var,
@@ -61,8 +63,11 @@ class CachedLazy:
         while callable(self.x):
             try:
                 self.x = self.x()
-            except TypeError:
-                break
+            except TypeError as e:
+                if 'call() missing 1 required positional argument' in str(e):
+                    break
+                else:
+                    raise
         return self.x
 
 Thunk: TypeAlias = Callable[[],Any]
