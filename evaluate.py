@@ -18,21 +18,28 @@ def parse(tokens: list[IRNode], i) -> int:
     if any(isinstance(op, x) for x in ZERO_ARG_OPS):
         return j
     elif isinstance(op, Lambda):
+        assert len(tokens) > j, f'EOF while parsing {op}'
         op.arg1 = tokens[j]
         return parse(tokens, j)
     elif isinstance(op, Unary):
+        assert len(tokens) > j, f'EOF while parsing {op}'
         op.arg1 = tokens[j]
         return parse(tokens, j)
     elif isinstance(op, Binary):
+        assert len(tokens) > j, f'EOF while parsing {op}'
         op.arg1 = tokens[j]
         j = parse(tokens, j)
+        assert len(tokens) > j, f'EOF while parsing {op}'
         op.arg2 = tokens[j]
         return parse(tokens, j)
     elif isinstance(op, If):
+        assert len(tokens) > j, f'EOF while parsing {op}'
         op.arg1 = tokens[j]
         j = parse(tokens, j)
+        assert len(tokens) > j, f'EOF while parsing {op}'
         op.arg2 = tokens[j]
         j = parse(tokens, j)
+        assert len(tokens) > j, f'EOF while parsing {op}'
         op.arg3 = tokens[j]
         return parse(tokens, j)
     else:
