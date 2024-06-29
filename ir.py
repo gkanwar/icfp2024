@@ -134,16 +134,16 @@ def i2s(x):
 
 class UNeg(Unary):
     BODY = '-'
-    F = staticmethod(lambda x: -x)
+    F = staticmethod(lambda x: -x())
 class UNot(Unary):
     BODY = '!'
-    F = staticmethod(lambda x: not x)
+    F = staticmethod(lambda x: not x())
 class US2I(Unary):
     BODY = '#'
-    F = staticmethod(s2i)
+    F = staticmethod(lambda x: s2i(x()))
 class UI2S(Unary):
     BODY = '$'
-    F = staticmethod(i2s)
+    F = staticmethod(lambda x: i2s(x()))
 UN_OPS.extend([UNeg, UNot, US2I, UI2S])
 
 
@@ -189,46 +189,46 @@ def strdrop(x, y):
 
 class BPlus(Binary):
     BODY = '+'
-    F = staticmethod(lambda x,y: x + y)
+    F = staticmethod(lambda x,y: x() + y())
 class BMinus(Binary):
     BODY = '-'
-    F = staticmethod(lambda x,y: x - y)
+    F = staticmethod(lambda x,y: x() - y())
 class BMul(Binary):
     BODY = '*'
-    F = staticmethod(lambda x,y: x * y)
+    F = staticmethod(lambda x,y: x() * y())
 class BIDiv(Binary):
     BODY = '/'
-    F = staticmethod(idiv)
+    F = staticmethod(lambda x,y: idiv(x(), y()))
 class BIMod(Binary):
     BODY = '%'
-    F = staticmethod(imod)
+    F = staticmethod(lambda x,y: imod(x(), y()))
 class BILess(Binary):
     BODY = '<'
-    F = staticmethod(lambda x,y: x < y)
+    F = staticmethod(lambda x,y: x() < y())
 class BIGtr(Binary):
     BODY = '>'
-    F = staticmethod(lambda x,y: x > y)
+    F = staticmethod(lambda x,y: x() > y())
 class BEq(Binary):
     BODY = '='
-    F = staticmethod(lambda x,y: x == y)
+    F = staticmethod(lambda x,y: x() == y())
 class BOr(Binary):
     BODY = '|'
-    F = staticmethod(lambda x,y: x or y)
+    F = staticmethod(lambda x,y: x() or y())
 class BAnd(Binary):
     BODY = '&'
-    F = staticmethod(lambda x,y: x and y)
+    F = staticmethod(lambda x,y: x() and y())
 class BCat(Binary):
     BODY = '.'
-    F = staticmethod(strcat)
+    F = staticmethod(lambda x,y: strcat(x(), y()))
 class BTake(Binary):
     BODY = 'T'
-    F = staticmethod(strtake)
+    F = staticmethod(lambda x,y: strtake(x(), y()))
 class BDrop(Binary):
     BODY = 'D'
-    F = staticmethod(strdrop)
+    F = staticmethod(lambda x,y: strdrop(x(), y()))
 class BApply(Binary):
     BODY = '$'
-    F = staticmethod(lambda x,y: x(y))
+    F = staticmethod(lambda x,y: x()(y))
 BIN_OPS.extend([
     BPlus, BMinus, BMul, BIDiv, BIMod, BILess, BIGtr, BEq, BOr, BAnd, BCat,
     BTake, BDrop, BApply

@@ -106,19 +106,19 @@ def eval_lazy(prog: IRNode, bindings: Bindings) -> Thunk:
             return body
         return lambda: call
     elif isinstance(prog, Var):
-        return CachedLazy(bindings.get(prog.bind))
+        return bindings.get(prog.bind)
     elif isinstance(prog, Unary):
         assert prog.arg1 is not None
         arg1 = eval_lazy(prog.arg1, bindings)
         f = prog.F
-        return CachedLazy(lambda: f(arg1()))
+        return CachedLazy(lambda: f(arg1))
     elif isinstance(prog, Binary):
         assert prog.arg1 is not None
         assert prog.arg2 is not None
         arg1 = eval_lazy(prog.arg1, bindings)
         arg2 = eval_lazy(prog.arg2, bindings)
         f = prog.F
-        return CachedLazy(lambda: f(arg1(), arg2()))
+        return CachedLazy(lambda: f(arg1, arg2))
     elif isinstance(prog, If):
         assert prog.arg1 is not None
         assert prog.arg2 is not None
@@ -126,6 +126,6 @@ def eval_lazy(prog: IRNode, bindings: Bindings) -> Thunk:
         arg1 = eval_lazy(prog.arg1, bindings)
         arg2 = eval_lazy(prog.arg2, bindings)
         arg3 = eval_lazy(prog.arg3, bindings)
-        return CachedLazy(lambda: arg2() if arg1() else arg3())
+        return CachedLazy(lambda: arg2 if arg1() else arg3)
     else:
         raise ValueError(f'unknown node type {prog}')
