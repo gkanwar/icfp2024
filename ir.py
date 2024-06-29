@@ -1,0 +1,2 @@
+class IRNode:
+    pass
