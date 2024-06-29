@@ -27,7 +27,12 @@ def run_repl():
             break
         if len(x) == 0:
             break
-        resp = send(enc(eval(x)))
+
+        if x[0] == '!':
+            print('(sending raw prog)')
+            resp = send(' '.join(x[1:].strip().split()))
+        else:
+            resp = send(enc(eval(x)))
         print('== RAW ==')
         print(repr(resp))
         tokens = dec(resp)
