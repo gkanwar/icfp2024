@@ -1,6 +1,7 @@
 import numpy as np
 
-from ir import *    
+from evaluate import *
+from ir import *
 
 DV_TO_KEY = {
     (-1,-1): '1',
@@ -12,6 +13,12 @@ DV_TO_KEY = {
     (-1,1): '7',
     (0,1): '8',
     (1,1): '9',
+}
+LABEL_TO_KEY = {
+    'u': '8',
+    'd': '2',
+    'l': '4',
+    'r': '6',
 }
 
 def solve(coords, name):
@@ -25,7 +32,7 @@ def solve(coords, name):
             break
     keys = ''.join(DV_TO_KEY[tuple(x)] for x in dv)
     print(f'[Str("solve {name} {keys}")]')
-    
+
 
 puzzles = {
     'spaceship1': '1 -1\n1 -3\n2 -5\n2 -8\n3 -10\n',
@@ -37,3 +44,76 @@ puzzles = {
 
 for k in puzzles:
     solve(puzzles[k], k)
+
+
+y = [
+    Lambda(0),
+    BApply(),
+    Lambda(1), BApply(), Var(0), BApply(), Var(1), Var(1),
+    Lambda(1), BApply(), Var(0), BApply(), Var(1), Var(1),
+]
+
+def solve_spiral(name, *, n_iter):
+    step_rec = [
+        Lambda(4),
+        Lambda(0), Lambda(1), Lambda(2),
+        If(), BEq(), Var(0), Int([0]),
+        Str(''),
+        BCat(), Var(1), BCat(), Var(2),
+        BApply(), BApply(), BApply(),
+        Var(4),
+        BMinus(), Var(0), Int([1]),
+        Var(1), Var(2),
+    ]
+    step_test = [
+        BApply(), BApply(), BApply(), BApply(),
+    ] + y + step_rec + [
+        Int([6]), Str(LABEL_TO_KEY['u']), Str(LABEL_TO_KEY['d'])
+    ]
+    step_prog = parse_all(step_test)
+    assert eval_lazy(step_prog, Bindings())() == '82'*6
+
+    solve_rec = [
+        Lambda(4),
+        Lambda(0), # i
+        If(), BEq(), Var(0), Var(9), # i == n
+        Str(''),
+        BApply(),
+        Lambda(8), # j = 2*i+1
+        BCat(),
+        BApply(), BApply(), BApply(), BApply(),
+    ] + y + step_rec + [
+        Var(8), Str(LABEL_TO_KEY['u']), Str(LABEL_TO_KEY['d']),
+        BCat(),
+        BApply(), BApply(), BApply(), BApply(),
+    ] + y + step_rec + [
+        Var(8), Str(LABEL_TO_KEY['r']), Str(LABEL_TO_KEY['l']),
+        BCat(),
+        BApply(), BApply(), BApply(), BApply(),
+    ] + y + step_rec + [
+        BPlus(), Int([1]), Var(8), Str(LABEL_TO_KEY['d']), Str(LABEL_TO_KEY['u']),
+        BCat(),
+        BApply(), BApply(), BApply(), BApply(),
+    ] + y + step_rec + [
+        BPlus(), Int([1]), Var(8), Str(LABEL_TO_KEY['l']), Str(LABEL_TO_KEY['r']),
+        # recurse
+        BApply(),
+        Var(4), BPlus(), Var(0), Int([1]),
+        # j = 2*i+1
+        BPlus(), Int([1]), BMul(), Var(0), Int([2]),
+    ]
+    solve_full = [
+        BCat(), Str(f'solve {name} '),
+        BApply(), Lambda(9), # n
+        BApply(), BApply(),
+    ] + y + solve_rec + [
+        Int([0]),
+        Int(Int.to_digits(n_iter)),
+    ]
+    solve_prog = parse_all(solve_full)
+    # print(eval_lazy(solve_prog, Bindings())())
+    print(enc(solve_full))
+
+
+# works for spaceship 4, with a very bad score!
+solve_spiral(f'spaceship{4}', n_iter=200)
