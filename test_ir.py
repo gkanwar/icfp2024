@@ -51,3 +51,11 @@ def test_enc_dec():
         '''2%#4 S!00,)#!4)/.})3}./4}#/22%#4 S!00,)#!4)/.})3}./4}#/22%#4'''
     )
     assert enc(dec(prog)) == prog
+
+def test_multi_digit_binds():
+    prog = '''L## v##'''
+    tokens = dec(prog)
+    assert isinstance(tokens[0], Lambda)
+    assert tokens[0].bind == 2*94+2
+    assert isinstance(tokens[1], Var)
+    assert tokens[1].bind == 2*94+2

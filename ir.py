@@ -46,6 +46,11 @@ class BoolF(IRNode):
         return cls()
 ALL_OPS.extend([BoolT, BoolF])
 
+def dec_digits(s):
+    return [ord(c) - ASCII_BASE for c in s]
+def enc_digits(digits):
+    return ''.join(ASCII_CHARS[x] for x in digits)
+
 class Int(IRNode):
     """Integer represented by base-94 digits"""
     BASE = 94
@@ -75,13 +80,12 @@ class Int(IRNode):
 
     def enc(self):
         assert len(ASCII_CHARS) >= self.BASE
-        return self.IND + ''.join(ASCII_CHARS[x] for x in self.digits)
+        return self.IND + enc_digits(self.digits)
 
     @classmethod
     def dec(cls, s):
         assert s[0] == cls.IND
-        digits = [ord(c) - ASCII_BASE for c in s[1:]]
-        return cls(digits)
+        return cls(dec_digits(s[1:]))
 ALL_OPS.append(Int)
 
 class Str(IRNode):
@@ -269,12 +273,12 @@ class Lambda(IRNode):
     def __init__(self, bind: int):
         self.bind = bind
     def enc(self):
-        return self.IND + ASCII_CHARS[self.bind]
+        return self.IND + enc_digits(Int.to_digits(self.bind))
     @classmethod
     def dec(cls, s):
         assert s[0] == cls.IND
-        assert len(s) == 2
-        return cls(ASCII_CHARS.index(s[1]))
+        assert len(s) >= 2
+        return cls(Int.from_digits(dec_digits(s[1:])))
     def __repr__(self):
         return f'L{self.bind}'
 ALL_OPS.append(Lambda)
@@ -284,12 +288,12 @@ class Var(IRNode):
     def __init__(self, bind: int):
         self.bind = bind
     def enc(self):
-        return self.IND + ASCII_CHARS[self.bind]
+        return self.IND + enc_digits(Int.to_digits(self.bind))
     @classmethod
     def dec(cls, s):
         assert s[0] == cls.IND
-        assert len(s) == 2
-        return cls(ASCII_CHARS.index(s[1]))
+        assert len(s) >= 2
+        return cls(Int.from_digits(dec_digits(s[1:])))
     def __repr__(self):
         return f'v{self.bind}'
 ALL_OPS.append(Var)
