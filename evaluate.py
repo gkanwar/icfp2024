@@ -3,6 +3,7 @@ from ir import *
 from typing import TypeAlias
 import sys
 sys.setrecursionlimit(100000)
+sys.set_int_max_str_digits(100000)
 
 ZERO_ARG_OPS = [
     BoolT, BoolF, Int, Str, Var,

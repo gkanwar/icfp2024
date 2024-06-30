@@ -38,8 +38,8 @@ def make_prog(seed, g, p, n):
     ] + y + make_f_rec(g, p) + [
         Int(Int.to_digits(n)), seed,
     ]
-g = 104729
-p = 131071
+# g = 104729
+# p = 131071
 # f_test = make_prog(1, g, p, 10000)
 # f_test_prog = parse_all(f_test)
 # print(eval_lazy(f_test_prog, Bindings())())
@@ -52,3 +52,11 @@ p = 131071
 
 # for n in range(11, 21+1):
 #     print(enc([BCat(), Str(f'solve lambdaman{n} ')] + make_prog(1000000)))
+
+
+# NOTE: needed to be careful about finding a primitive root for max randness
+p = 1000000009
+g = 13
+n = 1000000
+# print(enc([BCat(), Str('solve lambdaman17 ')] + make_prog(1, g, p, n)))
+print(enc([BCat(), Str('solve lambdaman21 ')] + make_prog(3, g, p, n)))
